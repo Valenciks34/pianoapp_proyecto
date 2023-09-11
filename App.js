@@ -1,21 +1,23 @@
 
 import React, {useEffect, useRef} from 'react';
-import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer, StackActions, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MD3LightTheme as DefaultTheme, PaperProvider } from 'react-native-paper';
 import { AppRegistry } from 'react-native';
 import { Provider } from 'react-redux'
 
-
-import RegisterScreen from './src/screens/registerScreen';
-import  LoginScreen  from './src/screens/loginScreen'
-import  HomeScreen  from './src/screens/homeScreen';
-import LessonScreen from './src/screens/lessonScreen';
-import PracticeScreen from './src/screens/practiceScreen';
 import { name as appName } from './app.json';
 import { store } from './src/store'
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebaseConfig';
+
+import AuthValidationScreen from './src/screens/authValidationScreen'
+import LoginScreen from './src/screens/loginScreen'
+import RegisterScreen from './src/screens/registerScreen';
+import ForgotPasswordScreen from './src/screens/forgotPasswordScreen'
+import HomeScreen  from './src/screens/homeScreen';
+import LessonScreen from './src/screens/lessonScreen';
+import PracticeScreen from './src/screens/practiceScreen';
 
 
 const Stack = createNativeStackNavigator(); 
@@ -66,27 +68,32 @@ const theme = {
   }, // Copy it from the color codes scheme and then use it here
 };
 
-const App = () => {
+const navigationRef = createNavigationContainerRef();
 
-  const navigationRef = createNavigationContainerRef();
+const App = () => {
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
+      // if(!navigationRef.isReady) return;
+
       if (user){
-        navigationRef.navigate("Home")
+        navigationRef.dispatch(StackActions.replace('Home'));
       }else{
-        navigationRef.navigate("Login")
+        navigationRef.dispatch(StackActions.replace('Login'));
       }
-    })
-  },[])
+    });
+  },[]);
 
   return (
     <Provider store={store}>
       <PaperProvider theme={theme}>
         <NavigationContainer ref={navigationRef}>
-          <Stack.Navigator screenOptions={{headerShown:false}} initialRouteName='Login'>
+          <Stack.Navigator screenOptions={{headerShown:false}} initialRouteName='AuthValidation'>
+            <Stack.Screen name="AuthValidation" component={AuthValidationScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+            
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Lessons" component={LessonScreen} />
             <Stack.Screen name="Practice" component={PracticeScreen} />
