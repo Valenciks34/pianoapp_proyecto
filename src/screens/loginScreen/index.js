@@ -1,111 +1,129 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
 import React, {useState} from "react";
-import { SafeAreaView, StyleSheet, Text, Image, View } from "react-native";
 import { Button, HelperText, TextInput, useTheme } from "react-native-paper";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { SafeAreaView, StyleSheet, Text, Image, View, TouchableWithoutFeedback, Keyboard } from "react-native";
+
 import { auth } from "../../../firebaseConfig";
-
-
 
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isAuthenticated, setAuthenticated] = React.useState(null);
-
+  
+  const [formErrors, setFormErrors] = useState({});
+  const [loginError, setLoginError] = useState(null);
+  
   const theme = useTheme();
 
-  const [emailError, setEmailError] = useState(null);
-  const [passwordError, setPasswordError] = useState(null);
-
-
   const login = async () => {
+    Keyboard.dismiss();
 
-    setEmailError(null); 
-    setPasswordError(null);
+    setFormErrors({});
 
-    if(email.length === 0){
-      setEmailError("El email es obligatorio")
-      return;
+    var validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+    let errors = {};
+
+    if(!email.match(validEmail)){
+      errors = {...errors, email: "Debe ingresar un email valido"};
     }
 
-    if(password.length <= 7){
-      setPasswordError("La contraseña debe tener minimo 8 caracteres")
+    if(password.length < 6){
+      errors = {...errors, password: "La contraseña debe tener minimo 6 caracteres"};
+    }
+
+    if(Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // navigation.navigate("Home");
     } catch (error) {
-      console.error(error); 
+      setLoginError(error);
     }
   };
 
   
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Image
-        style={styles.tinyLogo}
-        source={{
-          uri: "https://cdn5.vectorstock.com/i/thumb-large/68/64/piano-logo-design-template-for-music-instrument-vector-30206864.jpg",
-        }}
-      />
-      
-      
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container} >
+        <Image
+          style={styles.tinyLogo}
+          source={{
+            uri: "https://cdn5.vectorstock.com/i/thumb-large/68/64/piano-logo-design-template-for-music-instrument-vector-30206864.jpg",
+          }}
+        />
 
-      <Text style={styles.tittle}>LOGIN SCREEN</Text>
+        <View style={{ height: 25 }} />
 
-      <View style={{ width: 250 }}>
-        <TextInput
-          label="Email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
+        <Text style={styles.tittle}>LOGIN SCREEN</Text>
+
+        <View style={{ height: 25 }} />
+
+        <View style={{ width: 250 }}>
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={(text) => setEmail(text)}
+            
+          />
           
-        />
+          <HelperText type="error" visible={formErrors.email}>
+            {formErrors.email}
+          </HelperText>
 
-        <HelperText type="error" visible={emailError != null}>
-          {emailError}
-        </HelperText>
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            secureTextEntry={true}
+          />
+
+          <HelperText type="error" visible={formErrors.password}>
+            {formErrors.password}
+          </HelperText>
+
+          <View style={{alignItems: "flex-end"}} >
+            <Text o
+              style={{color: theme.colors.primary}}
+              onPress={() => navigation.push("ForgotPassword")} 
+            >
+              Forgot Password?
+            </Text>
+          </View>
+
+          <View style={{ height: 20 }} />
+
+          {loginError && 
+            <HelperText type="error" style={{textAlign: "center", paddingBottom: 10}}>
+              {loginError.toString()}
+            </HelperText>
+          }
+
+          <Button
+            textColor="#fff"
+            icon="account"
+            mode="contained"
+            onPress={login}
+          >
+            Enter
+          </Button>
+        </View>
 
         <View style={{ height: 15 }} />
 
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          secureTextEntry={true}
-        />
-
-        <HelperText type="error" visible={passwordError != null}>
-          {passwordError}
-        </HelperText>
-
-        <View style={{ height: 15 }} />
-
-        {isAuthenticated === false && <Text>Credenciales incorrectas</Text>}
-
-        <Button
-          textColor="#fff"
-          icon="account"
-          mode="contained"
-          onPress={login}
+        <Text
+          style={{color: theme.colors.primary, textDecorationLine: 'underline'}}
+          onPress={() => navigation.push('Register')}
         >
-          Enter
-        </Button>
-      </View>
-
-      <View style={{ height: 15 }} />
-
-      <Text
-        style={{color: theme.colors.primary, textDecorationLine: 'underline'}}
-        onPress={() => navigation.push('Register')}
-      >
           Dont have account?, register here!
-      </Text>
+        </Text>
 
 
-    </SafeAreaView>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -119,13 +137,12 @@ const styles = StyleSheet.create({
   tittle: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 10,
     color: "grey",
   },
+
   tinyLogo: {
     width: 150,
     height: 150,
-    marginBottom: 40,
     borderRadius: 15,
   },
 });
