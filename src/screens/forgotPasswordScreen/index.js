@@ -25,14 +25,17 @@ export default function ForgotPasswordScreen({navigation}) {
 
     if (!email.match(validEmail)) {
       setEmailError("Debe ingresar un email valido");
+      console.log("ingrese un email valido")
       return;
     }
 
     try {
       await sendPasswordResetEmail(auth, email);
       setEmailSent(true);
+      console.log(auth, "envio de email exitoso");
     } catch (error) {
       setForgotPasswordError(error);
+      console.log(auth)
     }
   };
 

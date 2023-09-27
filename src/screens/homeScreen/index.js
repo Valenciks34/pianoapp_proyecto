@@ -34,7 +34,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={{ flex: 1 }}>
       <Appbar.Header>
         <Appbar.Content title="Homescreen" />
-        <Appbar.Action icon="account" onPress={() => {}} />
+        <Appbar.Action icon="account" onPress={() => navigation.navigate("Profile")} />
         <Appbar.Action icon="logout" onPress={() => signOut(auth)} />
       </Appbar.Header>
 

@@ -27,21 +27,26 @@ const RegisterScreen = ({ navigation }) => {
 
     if(!email.match(validEmail)){
       errors = {...errors, email: "Debe ingresar un email valido"};
+      console.log(errors)
     }
 
     if(password.length < 6){
       errors = {...errors, password: "La contraseña debe tener minimo 6 caracteres"};
+      console.log(errors.password)
     }
 
     if(Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      console.log(errors)
       return;
     }
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      console.log(auth)
     } catch (error) {
       setRegisterError(error);
+      console.log(auth)
     }
   };
 
