@@ -13,14 +13,14 @@ import { getStorage } from "firebase/storage";
 
 // Initialize Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyCT2uysCtTXKZSB0c-loZXXu-bZeCOx5fY",
-    authDomain: "loginapp345.firebaseapp.com",
-    projectId: "loginapp345",
-    storageBucket: "gs://loginapp345.appspot.com",
-    messagingSenderId: "370257564271",
-    appId: "1:370257564271:web:a145dd9a0ed9f6c875b39a",
-    measurementId: "G-CLJ7VGSK1Q"
-  };
+  apiKey: "AIzaSyCT2uysCtTXKZSB0c-loZXXu-bZeCOx5fY",
+  authDomain: "loginapp345.firebaseapp.com",
+  projectId: "loginapp345",
+  storageBucket: "gs://loginapp345.appspot.com",
+  messagingSenderId: "370257564271",
+  appId: "1:370257564271:web:a145dd9a0ed9f6c875b39a",
+  measurementId: "G-CLJ7VGSK1Q"
+};
 
 const app = initializeApp(firebaseConfig);
 // For more information on how to access Firebase in your project,

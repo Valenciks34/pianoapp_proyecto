@@ -1,203 +1,161 @@
-import { Text, View, StyleSheet, TouchableOpacity,Image,TouchableWithoutFeedback} from 'react-native'
-import React, {useState} from 'react';
-import { TextInput,Avatar, Button, useTheme } from 'react-native-paper'
-import * as ImagePicker from 'expo-image-picker';
-import { auth, storage } from '../../../firebaseConfig';
-import { ref, uploadBytes } from 'firebase/storage';
-import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import {Picker} from '@react-native-picker/picker';
+import {
+  View,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
+import React, { useState } from "react";
+import { TextInput, Button, useTheme } from "react-native-paper";
+import * as ImagePicker from "expo-image-picker";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
+import { AvatarPicker } from './components'
+import { styles } from './style'
+import { useDispatch, useSelector } from "react-redux";
+import { updateUser } from "../../store/slices/userSlice";
+import { getImageExtension, uriToBlob } from "../../utils";
+import { auth, db, storage } from "../../../firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-const ProfileScreen = ({navigation}) => {
-    const [image, setImage] = useState(null);
-    const [date, setDate] = useState(null);
-    const [gender, setGender] = useState(null);
+const ProfileScreen = ({ navigation }) => {
+  const [form, setForm] = useState({});
+  const [date, setDate] = useState(new Date());
 
-    const theme = useTheme();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.value);
 
-    const pickImage = async () => {
-      // No permissions request is necessary for launching the image library
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
+  const { colors } = useTheme();
 
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-      }
-    };
-
-    const updateProfileData = async () => {
-
-        const imgCopy = image.slice()
-        const extension = imgCopy.split("/").pop().split(".").pop();
-        const imgName = `${auth.currentUser.uid}.${extension}` ;
-        const userRef = ref(storage, imgName);
-        // const response = await fetch(image);
-        const blob = await uriToBlob(image);
-
-
-        console.log(image);
-
-
-        uploadBytes(userRef, blob,{contentType:"image/jpeg"}).then((snapshot) => {
-            console.log('Uploaded a blob or file!');
-          });
-    } 
-
-    /**
- * Function to convert a URI to a Blob object
- * @param {string} uri - The URI of the file
- * @returns {Promise} - Returns a promise that resolves with the Blob object
- */
-function uriToBlob(uri){
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-  
-      // If successful -> return with blob
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-  
-      // reject on error
-      xhr.onerror = function () {
-        reject(new Error('uriToBlob failed'));
-      };
-  
-      // Set the response type to 'blob' - this means the server's response 
-      // will be accessed as a binary object
-      xhr.responseType = 'blob';
-  
-      // Initialize the request. The third argument set to 'true' denotes 
-      // that the request is asynchronous
-      xhr.open('GET', uri, true);
-  
-      // Send the request. The 'null' argument means that no body content is given for the request
-      xhr.send(null);
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
+
+    if (!result.canceled) {
+      const file = result.assets[0].uri;
+      setForm({...form, avatar: file})
+    }
   };
 
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate;
-    setDate(currentDate);
+  const onDateSelected = (_, selectedDate) => {
+    const formatDate = selectedDate.toLocaleString("en-US", {day: "numeric", month: "long", year: "numeric"});
+    setDate(selectedDate) ;
+    setForm({...form, date: formatDate});
   };
 
-  const showMode = () => {
+  const showCalendar = () => {
     DateTimePickerAndroid.open({
-      value: date ?? new Date(),
-      onChange,
+      value: date,
+      onChange: onDateSelected,
       mode: "date",
       is24Hour: true,
     });
   };
 
-    return (
-        <View style= {styles.container}>
-            
-             <TouchableOpacity onPress={pickImage}>
-                <View>
-                    { image 
-                        ?  <Avatar.Image size={200} source={{uri:image}} />
-                        :  <Avatar.Text size={200} label="Upload Image" />
-                    }
-                </View>
-            </TouchableOpacity> 
+  const updateProfileData = async () => {
+    const extension = getImageExtension(form.avatar);
+    const imgName = `${auth.currentUser.uid}.${extension}`;
+    const userStorageRef = ref(storage, imgName);
+    const blob = await uriToBlob(form.avatar);
+    await uploadBytes(userStorageRef, blob, { contentType: "image/jpeg" });
+    const avatarUrl = await getDownloadURL(userStorageRef);
 
-           <View style={{height:40}}/> 
-            
-            <View style={styles.inline_centered}>
-                <TextInput label="FirstName" style={styles.short_inputs}></TextInput>
-                <TextInput label="Last Name" style={styles.short_inputs}></TextInput>
+    const userRef = doc(db, "users", auth.currentUser.uid);
+
+    await updateDoc(userRef, {...form, avatar: avatarUrl});
+
+    dispatch(updateUser(form));
+  };
+
+  return (
+    <KeyboardAwareScrollView contentContainerStyle={{flexGrow: 1, justifyContent: 'center', alignItems: "center"}}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
+        <View style={styles.container}>
+
+          <TouchableOpacity onPress={pickImage}>
+            <View style={{alignItems: "center"}}>
+              <AvatarPicker 
+                image={form.avatar ?? user.avatar}
+                text={user.firstName}
+                size={120}
+                backgroundColor={colors.primary}
+              />
             </View>
+          </TouchableOpacity>
 
-           <TouchableWithoutFeedback  onPress={showMode}>
-                <View style={{width: "85%"}}>
-                    <TextInput 
-                        editable={false}
-                        value={date?.toLocaleDateString('en-US')}
-                        label="Birthday Date" 
-                        right={<TextInput.Icon icon="calendar"/>}
-                        style={{...styles.inputs_block, width: "100%"}}>
-                    </TextInput>
-                </View>
-           </TouchableWithoutFeedback>
+          <View style={{ height: 40 }} />
 
+          <View style={{flexDirection: "row", justifyContent:"space-between"}}>
             <TextInput 
-                label="Number phone"
-                right={<TextInput.Icon icon="phone"/>} 
-                style={styles.inputs_block}
-                keyboardType = 'numeric'>
-            </TextInput>
+              value={form.firstName ?? user.firstName}
+              label="FirstName" 
+              style={{width:"48%"}}
+              onChangeText={(value) => setForm({...form, firstName: value})}
+            />
+            <TextInput 
+              value={form.lastName ?? user.lastName}
+              label="Last Name" 
+              style={{width:"48%"}}
+              onChangeText={(value) => setForm({...form, lastName: value})}
+            />
+          </View>
 
-            {/* <TextInput 
-                label="Gender" 
-                style={styles.inputs_block}
-                right={<TextInput.Icon icon="account"/>}>
-            </TextInput> */}
+          <View style={{ height: 20 }} />
 
+          <TouchableWithoutFeedback onPress={showCalendar}>
+            <View>
+              <TextInput
+                editable={false}
+                value={form.date ?? user.date}
+                label="Birthday Date"
+                right={<TextInput.Icon icon="calendar" />}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+
+          <View style={{ height: 20 }} />
+
+          <TextInput
+            value={form.phone ?? user.phone}
+            label="Number phone"
+            right={<TextInput.Icon icon="phone" />}
+            keyboardType="numeric"
+            onChangeText={(value) => setForm({...form, phone: value})}
+          />
+
+          <View style={{ height: 20 }} />
+
+          <View style={{
+            ...styles.picker, 
+            backgroundColor: colors.surfaceVariant, 
+            borderBottomColor: colors.onSurfaceVariant}}
+          >
             <Picker
-                style={{backgroundColor: theme.colors.primary, borderRadius: 10, height:30, width:"85%"}}
-                selectedValue={gender ?? "male"}
-                onValueChange={(itemValue, itemIndex) =>
-                    setGender(itemValue)
-                }
+              selectedValue={form.gender ?? user.gender}
+              placeholder=""
+              onValueChange={(value, _) => setForm({...form, gender: value})}
             >
-                <Picker.Item label="Male" value="male" />
-                <Picker.Item label="Female" value="female" />
+              <Picker.Item enabled={false} label="Select gender" value="null" />
+              <Picker.Item label="Male" value="male" />
+              <Picker.Item label="Female" value="female" />
             </Picker>
+          </View>
 
-            <Button onPress={updateProfileData}
-            mode="contained">
-            try me!
-            </Button>
+          <View style={{ height: 20 }} />
 
+          <Button style={{alignSelf: "center"}} onPress={updateProfileData} mode="contained">
+            Update Profile
+          </Button>
         </View>
-        )
-    };
-
-const styles = StyleSheet.create({
-    short_inputs:{
-        width:"40%",
-        borderRadius:4,
-        marginHorizontal:10, 
-        marginVertical:10   
-    },
-    inputs_block:{
-        width:"85%",
-        marginVertical:10   
-    },
-
-    container:{
-        display:"flex",
-        justifyContent:"center",
-        alignItems:"center",
-        minHeight:"100%"
-    },
-    inline_centered:{
-        display:"flex",
-        flexDirection:"row",
-        justifyContent:"center",
-        alignItems:"center"
-    },
-    upload_image:{
-        width:200,
-        height:200,
-        borderRadius:100,
-        backgroundColor:"#250",
-        display:"flex",
-        justifyContent:"center",
-        alignItems:"center",
-        marginBottom:40
-    },
-    text:{
-        color:"#fff",
-    },
-
-    
-    
-
-});      
+      </TouchableWithoutFeedback>
+    </KeyboardAwareScrollView>
+  );
+};
 
 export default ProfileScreen;

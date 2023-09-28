@@ -9,7 +9,7 @@ import { Provider } from 'react-redux'
 import { name as appName } from './app.json';
 import { store } from './src/store'
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebaseConfig';
+import { auth, db } from './firebaseConfig';
 
 import AuthValidationScreen from './src/screens/authValidationScreen'
 import LoginScreen from './src/screens/loginScreen'
@@ -20,6 +20,8 @@ import HomeScreen  from './src/screens/homeScreen';
 import LessonScreen from './src/screens/lessonScreen';
 import PracticeScreen from './src/screens/practiceScreen';
 import ProfileScreen from './src/screens/profileScreen';
+import { doc, getDoc } from 'firebase/firestore';
+import { setUser } from './src/store/slices/userSlice';
 
 
 const Stack = createNativeStackNavigator(); 
@@ -73,18 +75,21 @@ const theme = {
 const navigationRef = createNavigationContainerRef();
 
 const App = () => {
-
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       // if(!navigationRef.isReady) return;
 
       if (user){
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        store.dispatch(setUser({uid: userDoc.uid, ...userDoc.data()}));
         navigationRef.dispatch(StackActions.replace('Home'));
       }else{
+
         navigationRef.dispatch(StackActions.replace('Login'));
       }
     });
   },[]);
+
 
   return (
     <Provider store={store}>

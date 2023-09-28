@@ -1,11 +1,14 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import React from "react";
-import { SafeAreaView, StyleSheet, Text,Image,View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { StyleSheet, Text,Image,View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { useTheme } from "react-native-paper";
-import { auth } from "../../../firebaseConfig";
 import { useState } from "react";
+import { doc, setDoc } from "firebase/firestore";
+import { useDispatch } from "react-redux";
 
+import { setUser } from "../../store/slices/userSlice";
+import { auth, db } from "../../../firebaseConfig";
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -15,6 +18,8 @@ const RegisterScreen = ({ navigation }) => {
   const [registerError, setRegisterError] = useState(null);
   
   const theme = useTheme();
+
+  const dispatch = useDispatch();
 
   const register = async () => {
     Keyboard.dismiss();
@@ -42,8 +47,10 @@ const RegisterScreen = ({ navigation }) => {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      console.log(auth)
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      const userDoc = doc(db, "users", credential.user.uid);
+      await setDoc(userDoc, {email});
+      dispatch(setUser({email}));
     } catch (error) {
       setRegisterError(error);
       console.log(auth)
