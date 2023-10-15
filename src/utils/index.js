@@ -31,3 +31,7 @@ export const formatDate = (date) => {
 
   return `${day.toString().padStart(2, '0')} /${month}/${year}`;
 }
+
+export const trimAndLower = (text) => {
+  return text.trim().toLowerCase();
+}  

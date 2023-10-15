@@ -1,15 +1,16 @@
 
-import React, {useEffect, useRef} from 'react';
-import { NavigationContainer, StackActions, createNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MD3LightTheme as DefaultTheme, PaperProvider } from 'react-native-paper';
 import { AppRegistry } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Provider } from 'react-redux'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { PersistGate } from 'redux-persist/integration/react';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 
 import { name as appName } from './app.json';
-import { store } from './src/store'
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from './firebaseConfig';
 
 import AuthValidationScreen from './src/screens/authValidationScreen'
 import LoginScreen from './src/screens/loginScreen'
@@ -20,9 +21,8 @@ import HomeScreen  from './src/screens/homeScreen';
 import LessonScreen from './src/screens/lessonScreen';
 import PracticeScreen from './src/screens/practiceScreen';
 import ProfileScreen from './src/screens/profileScreen';
-import { doc, getDoc } from 'firebase/firestore';
-import { setUser } from './src/store/slices/userSlice';
 
+import userReducer from './src/store/slices/userSlice';
 
 const Stack = createNativeStackNavigator(); 
 
@@ -74,40 +74,58 @@ const theme = {
 
 const navigationRef = createNavigationContainerRef();
 
+const queryClient = new QueryClient();
+
+const persistConfig = { key: 'user', storage: AsyncStorage };
+
+const rootReducer = combineReducers({user: userReducer});
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
+});
+
+const persistor = persistStore(store);
+
 const App = () => {
-  useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      // if(!navigationRef.isReady) return;
-
-      if (user){
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        store.dispatch(setUser({uid: userDoc.uid, ...userDoc.data()}));
-        navigationRef.dispatch(StackActions.replace('Home'));
-      }else{
-
-        navigationRef.dispatch(StackActions.replace('Login'));
-      }
-    });
-  },[]);
-
+  // useEffect(() => {
+  //   onAuthStateChanged(auth, async (user) => {
+  //     if (user){
+  //       navigationRef.dispatch(StackActions.replace('Home'));
+  //     }else{
+  //       navigationRef.dispatch(StackActions.replace('Login'));
+  //     }
+  //   });
+  // },[]);
 
   return (
     <Provider store={store}>
-      <PaperProvider theme={theme}>
-        <NavigationContainer ref={navigationRef}>
-          <Stack.Navigator screenOptions={{headerShown:false}} initialRouteName='AuthValidation'>
-            <Stack.Screen name="AuthValidation" component={AuthValidationScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
-            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-            
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Lessons" component={LessonScreen} />
-            <Stack.Screen name="Practice" component={PracticeScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <QueryClientProvider client={queryClient}>
+          <PaperProvider theme={theme}>
+            <NavigationContainer ref={navigationRef}>
+              <Stack.Navigator screenOptions={{headerShown:false}} initialRouteName='AuthValidation'>
+                <Stack.Screen name="AuthValidation" component={AuthValidationScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+                
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Lessons" component={LessonScreen} />
+                <Stack.Screen name="Practice" component={PracticeScreen} />
+                <Stack.Screen name="Profile" component={ProfileScreen} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </PaperProvider>
+        </QueryClientProvider>
+      </PersistGate>
     </Provider>
   );
 }

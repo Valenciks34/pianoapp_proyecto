@@ -1,62 +1,33 @@
-import React from "react";
+import { useEffect } from "react";
 import { StyleSheet, Text,Image,View, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { useTheme } from "react-native-paper";
-import { useState } from "react";
-import { doc, setDoc } from "firebase/firestore";
-import { useDispatch } from "react-redux";
 
-import { setUser } from "../../store/slices/userSlice";
-import { auth, db } from "../../../firebaseConfig";
+import { useRegister, useRegisterFormValidation } from "./hooks";
+import { StackActions } from "@react-navigation/native";
 
 const RegisterScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [formErrors, setFormErrors] = useState({});
-  const [registerError, setRegisterError] = useState(null);
+  const { isLoading, error, data, registerWithEmailAndPassword } = useRegister();
+  
+  const { form, setForm, formErrors, registerFormIsValid } = useRegisterFormValidation();
   
   const theme = useTheme();
-
-  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    if(data) {
+      navigation.dispatch(StackActions.replace('Home'));
+    }
+  }, [data]);
 
   const register = async () => {
+    if(isLoading) return;
+
     Keyboard.dismiss();
 
-    setFormErrors({});
+    if(!registerFormIsValid()) return;
 
-    var validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
-    let errors = {};
-
-    if(!email.match(validEmail)){
-      errors = {...errors, email: "Debe ingresar un email valido"};
-      console.log(errors)
-    }
-
-    if(password.length < 6){
-      errors = {...errors, password: "La contraseña debe tener minimo 6 caracteres"};
-      console.log(errors.password)
-    }
-
-    if(Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      console.log(errors)
-      return;
-    }
-
-    try {
-      const credential = await createUserWithEmailAndPassword(auth, email, password);
-      const userDoc = doc(db, "users", credential.user.uid);
-      await setDoc(userDoc, {email});
-      dispatch(setUser({email}));
-    } catch (error) {
-      setRegisterError(error);
-      console.log(auth)
-    }
+    registerWithEmailAndPassword(form.email, form.password);
   };
-
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -77,8 +48,9 @@ const RegisterScreen = ({ navigation }) => {
         <View style = {{ width:250 }}>
           <TextInput
             label="Email"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
+            value={form.email}
+            maxLength={50}
+            onChangeText={(email) => setForm({...form, email})}
           />
 
           <HelperText type="error" visible={formErrors.email}>
@@ -87,8 +59,9 @@ const RegisterScreen = ({ navigation }) => {
 
           <TextInput
             label="Password"
-            value={password}
-            onChangeText={(text) => setPassword(text)}
+            value={form.password}
+            maxLength={20}
+            onChangeText={(password) => setForm({...form, password})}
             secureTextEntry={true}
           />
 
@@ -96,28 +69,30 @@ const RegisterScreen = ({ navigation }) => {
             {formErrors.password}
           </HelperText>
 
-          {registerError && 
+          {error && 
             <HelperText type="error" style={{textAlign: "center", paddingBottom: 10}}>
-              {registerError.toString()}
+              {error.toString()}
             </HelperText>
           }
 
           <View style={{ height: 1 }} />
 
           <Button
-            buttonColor="#7A9D54"
             textColor="#fff"
-            icon="account-check"
+            icon={"account"}
             mode="contained"
             onPress={register}
+            loading={isLoading}
           >
-          Register
+            Register
           </Button>
 
           <View style={{ height: 10 }} />
 
-          <Text variant="titleMedium" style = {{color: theme.colors.primary, textDecorationLine:'underline'}}
-          onPress={() => navigation.goBack()}>
+          <Text 
+            style = {{color: theme.colors.primary, textAlign: "center", textDecorationLine:'underline'}}
+            onPress={() => navigation.goBack()}
+          >
             Are you ready register?, go to login to begin!
           </Text>
         </View>

@@ -1,91 +1,69 @@
-import axios from "axios";
 import { signOut } from "firebase/auth"
-import { getDoc, collection, doc } from "firebase/firestore";
-import React, { useState } from "react";
-import { View, Image, ScrollView } from "react-native";
+import { View, ScrollView } from "react-native";
 import { Appbar, Button, Text, Divider, Card } from "react-native-paper";
-import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
-import CounterButton from "./counterButton";
-import { auth, db } from "../../../firebaseConfig";
+import { auth } from "../../../firebaseConfig";
+import { setUser } from "../../store/slices/userSlice";
+import { StackActions } from "@react-navigation/native";
 
 const HomeScreen = ({ navigation }) => {
-  const [pokemon, setPokemon] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
+  const dispatch = useDispatch();
 
-  const counter = useSelector((state) => state.counter.value);
-
-  const getPokemon = async () => {
-    const pokemonId = Math.floor(Math.random() * 100);
-    const response = await axios.get(
-      `https://pokeapi.co/api/v2/pokemon/${pokemonId}`,
-    );
-    setPokemon(response.data);
-  };
-
-  const getUserInfo = async () => {
-    const userDoc = doc(db, "users", "DLNAJYxiMEzT32Qi0vAF");
-    const snapshot = await getDoc(userDoc);
-    setUserInfo(snapshot.data());
-  };
+  const logout = () => {
+    dispatch(setUser(null));
+    signOut(auth);
+    navigation.dispatch(StackActions.replace('Login'));
+  }
 
   return (
     <View style={{ flex: 1 }}>
       <Appbar.Header>
         <Appbar.Content title="Homescreen" />
         <Appbar.Action icon="account" onPress={() => {}} />
-        <Appbar.Action icon="logout" onPress={() => signOut(auth)} />
+        <Appbar.Action icon="logout" onPress={logout} />
       </Appbar.Header>
       <Divider bold/>
 
-      <ScrollView>
+      <ScrollView 
+        contentContainerStyle={{paddingVertical: 40.0, backgroundColor:"#fff", alignItems: "center"}}
+      >
+        <Card style = {{width:"80%", backgroundColor:"#f7f7f7"}} type="outlined">
+          <Card.Content>
+            <Text variant="headlineLarge" style={{textAlign:"center", marginBottom:10}}>Lecciones teoricas</Text>
+          </Card.Content>
+          <Card.Cover source ={require("./assets/lesson.png")} resizeMode="center"/>
+          <Card.Content>
+            <Text variant="bodyMedium" style={{textAlign:"justify", marginTop:10}}>Si eres principiante conoce los conceptos basicos de este instrumento, aqui podras ver clases teoricas que te ayudaran a entender mejor la naturaleza del instrumento.</Text>
+          </Card.Content>
+          <Card.Actions style = {{padding:20}}>
+            <Button>Cancel</Button>
+            <Button >Ok</Button>
+          </Card.Actions>
+        </Card>
 
-        <View style = {{backgroundColor:"#fff", height:"100%"}}>
-
-          <View style ={{height:40}}/>
-
-          <View style ={{ display:"flex" ,justifyContent:"center", alignItems:"center"}}>
-            <Card style = {{ display:"flex" ,justifyContent:"center", alignItems:"center", width:"80%", backgroundColor:"#f7f7f7"}} type="outlined">
-              <Card.Content>
-                <Text variant="headlineLarge" style={{textAlign:"center", marginBottom:10}}>Lecciones teoricas</Text>
-              </Card.Content>
-              <Card.Cover source ={require("./assets/lesson.png")} resizeMode="center"/>
-              <Card.Content>
-                <Text variant="bodyMedium" style={{textAlign:"center", marginTop:10}}>Si eres principiante conoce los conceptos basicos de este instrumento, aqui podras ver clases teoricas que te ayudaran a entender mejor la naturaleza del instrumento.</Text>
-              </Card.Content>
-              <Card.Actions style = {{padding:20}}>
-                <Button>Cancel</Button>
-                <Button >Ok</Button>
-              </Card.Actions>
-            </Card>
-          </View>
-
-          <View style ={{diplat:"flex", height:40, justifyContent:"center"}}>
-            <Divider bold/>
-          </View>
-
-          <View style ={{ display:"flex" ,justifyContent:"center", alignItems:"center"}}>
-            <Card style = {{ display:"flex" ,justifyContent:"center", alignItems:"center", width:"80%", backgroundColor:"#f7f7f7"}} type="outlined">
-              <Card.Content>
-                <Text variant="headlineLarge" style={{textAlign:"center", marginBottom:10}}>Lecciones teoricas</Text>
-              </Card.Content>
-              <Card.Cover source ={require("./assets/piano.png")} resizeMode="center"/>
-              <Card.Content>
-                <Text variant="bodyMedium" style={{textAlign:"center", marginTop:10}}>Si eres principiante conoce los conceptos basicos de este instrumento, aqui podras ver clases teoricas que te ayudaran a entender mejor la naturaleza del instrumento.</Text>
-              </Card.Content>
-              <Card.Actions style = {{padding:20}}>
-                <Button>Cancel</Button>
-                <Button >Ok</Button>
-              </Card.Actions>
-            </Card>
-          </View>  
-
+        <View style={{width: "85%", height: 30, justifyContent: "center"}}>
+          <Divider  />
         </View>
 
+        <Card style = {{width:"80%", backgroundColor:"#f7f7f7"}} type="outlined">
+          <Card.Content>
+            <Text variant="headlineLarge" style={{textAlign:"center", marginBottom:10}}>Lecciones teoricas</Text>
+          </Card.Content>
+          <Card.Cover source ={require("./assets/piano.png")} resizeMode="center"/>
+          <Card.Content>
+            <Text variant="bodyMedium" style={{textAlign:"justify", marginTop:10}}>Si eres principiante conoce los conceptos basicos de este instrumento, aqui podras ver clases teoricas que te ayudaran a entender mejor la naturaleza del instrumento.</Text>
+          </Card.Content>
+          <Card.Actions style = {{padding:20}}>
+            <Button>Cancel</Button>
+            <Button >Ok</Button>
+          </Card.Actions>
+        </Card>
+      
       </ScrollView>
 
-    </View>
-  );
+   </View>
+  );
 };
 
   // return (

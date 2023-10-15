@@ -1,50 +1,32 @@
-import React, {useState} from "react";
+import { useEffect } from "react";
 import { Button, HelperText, TextInput, useTheme } from "react-native-paper";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { SafeAreaView, StyleSheet, Text, Image, View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { StyleSheet, Text, Image, View, TouchableWithoutFeedback, Keyboard } from "react-native";
 
-import { auth } from "../../../firebaseConfig";
-
+import { useLogin, useLoginFormValidation } from "./hooks";
+import { StackActions } from "@react-navigation/native";
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { isLoading, error, data, loginWithEmailAndPassword } = useLogin();
   
-  const [formErrors, setFormErrors] = useState({});
-  const [loginError, setLoginError] = useState(null);
-  
+  const { form, setForm, formErrors, loginFormIsValid } = useLoginFormValidation();
+
   const theme = useTheme();
 
+  useEffect(() => {
+    if(data) {
+      navigation.dispatch(StackActions.replace('Home'));
+    }
+  }, [data]);
+
   const login = async () => {
+    if(isLoading) return;
+
     Keyboard.dismiss();
 
-    setFormErrors({});
+    if(!loginFormIsValid()) return;
 
-    var validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
-    let errors = {};
-
-    if(!email.match(validEmail)){
-      errors = {...errors, email: "Debe ingresar un email valido"};
-    }
-
-    if(password.length < 6){
-      errors = {...errors, password: "La contraseña debe tener minimo 6 caracteres"};
-    }
-
-    if(Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      setLoginError(error);
-    }
+    loginWithEmailAndPassword(form.email, form.password);
   };
-
-  
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -65,9 +47,9 @@ const LoginScreen = ({ navigation }) => {
         <View style={{ width: 250 }}>
           <TextInput
             label="Email"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-            
+            value={form.email}
+            maxLength={50}
+            onChangeText={(email) => setForm({...form, email})}
           />
           
           <HelperText type="error" visible={formErrors.email}>
@@ -76,8 +58,9 @@ const LoginScreen = ({ navigation }) => {
 
           <TextInput
             label="Password"
-            value={password}
-            onChangeText={(text) => setPassword(text)}
+            value={form.password}
+            maxLength={20}
+            onChangeText={(password) => setForm({...form, password})}
             secureTextEntry={true}
           />
 
@@ -96,31 +79,32 @@ const LoginScreen = ({ navigation }) => {
 
           <View style={{ height: 20 }} />
 
-          {loginError && 
+          {error && 
             <HelperText type="error" style={{textAlign: "center", paddingBottom: 10}}>
-              {loginError.toString()}
+              {error.toString()}
             </HelperText>
           }
 
           <Button
             textColor="#fff"
-            icon="account"
+            icon={"account"}
             mode="contained"
             onPress={login}
+            loading={isLoading}
+            //disabled={loading}
           >
-            Enter
+            Entre
           </Button>
         </View>
 
         <View style={{ height: 15 }} />
 
         <Text
-          style={{color: theme.colors.primary, textDecorationLine: 'underline'}}
+          style={{color: theme.colors.primary, textAlign: "center", textDecorationLine: 'underline'}}
           onPress={() => navigation.push('Register')}
         >
           Dont have account?, register here!
         </Text>
-
 
       </View>
     </TouchableWithoutFeedback>
