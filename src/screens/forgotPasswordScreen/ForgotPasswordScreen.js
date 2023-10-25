@@ -1,5 +1,5 @@
-import { Image, Keyboard, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
-import { Button, HelperText, Snackbar, TextInput, useTheme } from "react-native-paper";
+import { Image, Keyboard, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
+import { Button, HelperText, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
 
 import { useRestorePassword, useRestorePasswordFormValidation } from "./hooks";
 
@@ -32,7 +32,7 @@ export default function ForgotPasswordScreen({navigation}) {
 
         <View style={{ height: 25 }} />
 
-        <Text style={styles.tittle}>FORGET PASSWORD</Text>
+        <Text variant="titleLarge">FGRGET PASSWORD</Text>
 
         <View style={{ height: 25 }} />
 
@@ -42,6 +42,7 @@ export default function ForgotPasswordScreen({navigation}) {
             value={form.email}
             maxLength={50}
             onChangeText={(email) => setForm({...form, email})}
+            error={formErrors.email}
           />
 
           <HelperText type="error" visible={formErrors.email}>
@@ -68,6 +69,7 @@ export default function ForgotPasswordScreen({navigation}) {
         <View style={{ height: 20 }} />
 
         <Text 
+          variant="labelLarge"
           style={{color: theme.colors.primary}}
           onPress={() => navigation.goBack()}
         >

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { StyleSheet, Text,Image,View, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { Button, HelperText, TextInput } from "react-native-paper";
+import { StyleSheet,Image,View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { Button, HelperText, TextInput, Text } from "react-native-paper";
 import { useTheme } from "react-native-paper";
 
 import { useRegister, useRegisterFormValidation } from "./hooks";
@@ -41,7 +41,7 @@ const RegisterScreen = ({ navigation }) => {
 
         <View style={{ height: 25 }} />
         
-        <Text style={styles.tittle}>REGISTER SCREEN</Text>
+        <Text variant="titleLarge">REGISTER SCREEN</Text>
 
         <View style={{ height: 25 }} />
 
@@ -51,6 +51,7 @@ const RegisterScreen = ({ navigation }) => {
             value={form.email}
             maxLength={50}
             onChangeText={(email) => setForm({...form, email})}
+            error={formErrors.email}
           />
 
           <HelperText type="error" visible={formErrors.email}>
@@ -63,6 +64,7 @@ const RegisterScreen = ({ navigation }) => {
             maxLength={20}
             onChangeText={(password) => setForm({...form, password})}
             secureTextEntry={true}
+            error={formErrors.password}
           />
 
           <HelperText HelperText type="error" visible={formErrors.password}>
@@ -90,6 +92,7 @@ const RegisterScreen = ({ navigation }) => {
           <View style={{ height: 10 }} />
 
           <Text 
+            variant="labelLarge"
             style = {{color: theme.colors.primary, textAlign: "center", textDecorationLine:'underline'}}
             onPress={() => navigation.goBack()}
           >

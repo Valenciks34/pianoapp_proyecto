@@ -45,11 +45,10 @@ export const useLogin = () => {
 
       setData(user);
     } catch (error) {
-      console.log(error);
       setError(error);
       setIsLoading(false);
     }
-  }
+  };
 
   return {isLoading, error, data, loginWithEmailAndPassword};
-}
+};

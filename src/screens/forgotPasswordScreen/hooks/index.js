@@ -4,4 +4,4 @@ import { useRestorePasswordFormValidation } from './useRestorePasswordFormValida
 export {
   useRestorePassword, 
   useRestorePasswordFormValidation
-}
+};

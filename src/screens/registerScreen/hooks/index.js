@@ -4,4 +4,4 @@ import { useRegisterFormValidation } from './useRegisterFormValidation';
 export {
   useRegister,
   useRegisterFormValidation
-}
+};

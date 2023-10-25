@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from "react";
 
 
 export const useRestorePasswordFormValidation = () => {
@@ -8,14 +8,19 @@ export const useRestorePasswordFormValidation = () => {
   const restorePasswordFormIsValid = () => {
     setFormErrors({});
 
-    var validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    var validEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
 
     let tempErrors = {};
 
-    const email = form.email.trim().toLowerCase();
+    let { email } = form;
 
-    if(!email.match(validEmail)){
-      tempErrors = {...tempErrors, email: "Debe ingresar un email valido"};
+    if(!email){
+      tempErrors = {...tempErrors, email: "El email es obligatorio"};
+    } else {
+      email = email.trim().toLowerCase();
+      if(!email.match(validEmail)) {
+        tempErrors = {...tempErrors, email: "Debes ingresar un email valido"};
+      }
     }
 
     if(Object.keys(tempErrors).length > 0) {
@@ -26,7 +31,7 @@ export const useRestorePasswordFormValidation = () => {
     setForm({email});
 
     return true;
-  }
+  };
 
-  return {form, setForm, formErrors, restorePasswordFormIsValid }
-}
+  return {form, setForm, formErrors, restorePasswordFormIsValid };
+};

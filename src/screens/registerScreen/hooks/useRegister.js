@@ -25,7 +25,7 @@ export const useRegister = () => {
 
       const user = {email};
 
-      const x = await setDoc(userDoc, user);
+      await setDoc(userDoc, user);
       
       dispatch(setUser(user));
 
@@ -34,7 +34,7 @@ export const useRegister = () => {
       setError(error);
       setIsLoading(false);
     }
-  }
+  };
 
   return {isLoading, error, data, registerWithEmailAndPassword};
-}
+};

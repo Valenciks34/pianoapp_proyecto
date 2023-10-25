@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from "react";
 
 
 export const useRegisterFormValidation = () => {
@@ -8,20 +8,28 @@ export const useRegisterFormValidation = () => {
   const registerFormIsValid = () => {
     setFormErrors({});
 
-    var validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    var validEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
 
     let tempErrors = {};
 
-    const email = form.email.trim().toLowerCase();
+    let { email, password } = form;
 
-    if(!email.match(validEmail)){
-      tempErrors = {...tempErrors, email: "Debe ingresar un email valido"};
+    if(!email){
+      tempErrors = {...tempErrors, email: "El email es obligatorio"};
+    } else {
+      email = email.trim().toLowerCase();
+      if(!email.match(validEmail)) {
+        tempErrors = {...tempErrors, email: "Debes ingresar un email valido"};
+      }
     }
 
-    const password = form.password.trim();
-
-    if(password.length < 6){
-      tempErrors = {...tempErrors, password: "La contraseña debe tener minimo 6 caracteres"};
+    if(!password){
+      tempErrors = {...tempErrors, password: "La contraseña es obligatorio"};
+    } else {
+      password = password.trim();
+      if(password.length < 6) {
+        tempErrors = {...tempErrors, password: "La contraseña debe tener minimo 6 caracteres"};
+      }
     }
 
     // Si hay un error devuelve falso
@@ -34,7 +42,7 @@ export const useRegisterFormValidation = () => {
 
     // Si no hay errores devuevle verdadero
     return true;
-  }
+  };
 
-  return {form, setForm, formErrors, registerFormIsValid }
-}
+  return {form, setForm, formErrors, registerFormIsValid };
+};

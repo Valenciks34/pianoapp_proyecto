@@ -21,7 +21,7 @@ export const useRestorePassword = () => {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return {isLoading, error, emailSent, restorePassword};
-}
+};

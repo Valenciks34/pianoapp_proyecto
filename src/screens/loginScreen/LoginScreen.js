@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { Button, HelperText, TextInput, useTheme } from "react-native-paper";
-import { StyleSheet, Text, Image, View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { Button, HelperText, TextInput, useTheme, Text } from "react-native-paper";
+import { StyleSheet, Image, View, TouchableWithoutFeedback, Keyboard } from "react-native";
 
 import { useLogin, useLoginFormValidation } from "./hooks";
 import { StackActions } from "@react-navigation/native";
@@ -40,7 +40,7 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={{ height: 25 }} />
 
-        <Text style={styles.tittle}>LOGIN SCREEN</Text>
+        <Text variant="titleLarge">LOGIN SCREEN</Text>
 
         <View style={{ height: 25 }} />
 
@@ -50,6 +50,7 @@ const LoginScreen = ({ navigation }) => {
             value={form.email}
             maxLength={50}
             onChangeText={(email) => setForm({...form, email})}
+            error={formErrors.email}
           />
           
           <HelperText type="error" visible={formErrors.email}>
@@ -62,6 +63,7 @@ const LoginScreen = ({ navigation }) => {
             maxLength={20}
             onChangeText={(password) => setForm({...form, password})}
             secureTextEntry={true}
+            error={formErrors.password}
           />
 
           <HelperText type="error" visible={formErrors.password}>
@@ -69,7 +71,8 @@ const LoginScreen = ({ navigation }) => {
           </HelperText>
 
           <View style={{alignItems: "flex-end"}} >
-            <Text o
+            <Text
+              variant="labelLarge"
               style={{color: theme.colors.primary}}
               onPress={() => navigation.push("ForgotPassword")} 
             >
@@ -100,6 +103,7 @@ const LoginScreen = ({ navigation }) => {
         <View style={{ height: 15 }} />
 
         <Text
+          variant="labelLarge"
           style={{color: theme.colors.primary, textAlign: "center", textDecorationLine: 'underline'}}
           onPress={() => navigation.push('Register')}
         >
