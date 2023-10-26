@@ -5,7 +5,7 @@ import { StyleSheet, Image, View, TouchableWithoutFeedback, Keyboard } from "rea
 import { useLogin, useLoginFormValidation } from "./hooks";
 import { StackActions } from "@react-navigation/native";
 
-const LoginScreen = ({ navigation }) => {
+export default function LoginScreen({ navigation, onSubmit }) {
   const { isLoading, error, data, loginWithEmailAndPassword } = useLogin();
   
   const { form, setForm, formErrors, loginFormIsValid } = useLoginFormValidation();
@@ -46,6 +46,8 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={{ width: 250 }}>
           <TextInput
+            role="form"
+            testID="emailInput"
             label="Email"
             value={form.email}
             maxLength={50}
@@ -58,6 +60,8 @@ const LoginScreen = ({ navigation }) => {
           </HelperText>
 
           <TextInput
+            role="form"
+            testID="passwordInput"
             label="Password"
             value={form.password}
             maxLength={20}
@@ -89,6 +93,7 @@ const LoginScreen = ({ navigation }) => {
           }
 
           <Button
+            testID="loginButton"
             textColor="#fff"
             icon={"account"}
             mode="contained"
@@ -113,7 +118,7 @@ const LoginScreen = ({ navigation }) => {
       </View>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -134,5 +139,3 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
 });
-
-export default LoginScreen;
