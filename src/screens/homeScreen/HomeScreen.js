@@ -1,6 +1,6 @@
 import { signOut } from "firebase/auth";
-import { View, ScrollView } from "react-native";
-import { Appbar, Button, Text, Divider, Card } from "react-native-paper";
+import { View, ScrollView, Image, FlatList, TouchableOpacity } from "react-native";
+import { Appbar, Button, Text, Divider, Card, TouchableRipple } from "react-native-paper";
 import { useDispatch } from "react-redux";
 import { StackActions } from "@react-navigation/native";
 
@@ -29,7 +29,43 @@ export default function HomeScreen({ navigation }) {
       </Appbar.Header>
       <Divider bold/>
 
-      <ScrollView 
+      <FlatList 
+        data={[1,2,3,4,5,6,7,8,9,10]}
+        keyExtractor={(_, index) => index.toString()}
+        numColumns={2}
+        contentContainerStyle={{padding: 20.0}}
+        ItemSeparatorComponent={() => <View style={{height: 20.0}} />}
+        columnWrapperStyle={{justifyContent: "space-between"}}
+        renderItem={({_}) => (
+          <TouchableOpacity activeOpacity={0.7}  onPress={() => navigation.push("Lessons")} style={{
+            width: "47.5%", 
+            aspectRatio: 1,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.23,
+            shadowRadius: 2.62,
+            elevation: 4,
+            borderRadius: 20.0,
+            backgroundColor: "white",
+            // boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)",
+          }}>
+            <View style={{
+              width: "100%",
+              height: "100%",
+              justifyContent: 'center',
+              alignItems:'center',
+            }}  >
+            <Text variant="titleLarge" >Historia</Text>
+            <Image source={require('../../../assets/images/piano_3d.png')} />
+          </View>
+          </TouchableOpacity>
+        )}
+      />
+
+      {/* <ScrollView 
         contentContainerStyle={{paddingVertical: 40.0, backgroundColor:"#fff", alignItems: "center"}}
       >
         <View>
@@ -42,8 +78,8 @@ export default function HomeScreen({ navigation }) {
               <Text variant="bodyMedium" style={{textAlign:"justify", marginTop:10}}>Si eres principiante conoce los conceptos basicos de este instrumento, aqui podras ver clases teoricas que te ayudaran a entender mejor la naturaleza del instrumento.</Text>
             </Card.Content>
             <Card.Actions style = {{padding:20}}>
-              <Button>Cancel</Button>
-              <Button >Ok</Button>
+              <Button onPress={() => {}} >Cancel</Button>
+              <Button onPress={() => {}} >Ok</Button>
             </Card.Actions>
           </Card>
         </View>
@@ -66,7 +102,7 @@ export default function HomeScreen({ navigation }) {
           </Card.Actions> 
         </Card>
       
-      </ScrollView>
+      </ScrollView> */}
 
     </View>
   );
