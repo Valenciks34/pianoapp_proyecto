@@ -29,7 +29,21 @@ export default function AvatarPicker({userAvatar, text, size}) {
     }
   }, [uploadedImage, error]);
 
+  const letters = () => {
+    const split = text.split(" ");
+
+    if(split.length > 1) {
+      const letters = `${split[0][0]}${split[1][0]}`;
+      return `${letters.toUpperCase()}`;
+    } else {
+      const letters = text.substring(0,2);
+      return `${letters.toUpperCase()}`;
+    }
+  };
+
   const buttonRadius = 25;
+
+  console.log(text);
 
   return (
     <TouchableOpacity onPress={pickImage}>
@@ -39,15 +53,14 @@ export default function AvatarPicker({userAvatar, text, size}) {
             source={{uri: image}} 
             style={{width: "100%", height: "100%", borderRadius: size/2}} 
             resizeMode='cover' 
-            // defaultSource={}
           />
           : <View style={{...styles.fitAbsolute, borderRadius: size/2, backgroundColor: colors.primary}}>
             <Text 
-              style={{fontSize: size, color: "white"}} 
+              style={{fontSize: size, color: "white", padding: 10.0}} 
               numberOfLines={1} 
               adjustsFontSizeToFit={true}
             >
-              {text[0].toUpperCase()}
+              {letters()}
             </Text>
           </View>
         }
@@ -97,7 +110,7 @@ export default function AvatarPicker({userAvatar, text, size}) {
               : "Image uploaded successfully"
             }
           </Snackbar>
-        </Portal>
+        </Portal> 
       </View>
     </TouchableOpacity>
   );

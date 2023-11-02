@@ -22,6 +22,8 @@ const ProfileScreen = ({ navigation }) => {
     dispatch(setUser(null));
   };
 
+  const fullName = () => user.firstName ? `${user.firstName} ${user.lastName}` : null;
+
   return (
     <View style={{flexGrow:1}}>
       <Appbar.Header>
@@ -36,7 +38,7 @@ const ProfileScreen = ({ navigation }) => {
           <View style={{alignItems: "center"}}>
             <AvatarPicker 
               userAvatar={user?.avatar}
-              text={user.firstName}
+              text={fullName() ?? user.email}
               size={120}
               backgroundColor={colors.primary}
             />
