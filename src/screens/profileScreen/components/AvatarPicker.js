@@ -51,6 +51,7 @@ export default function AvatarPicker({userAvatar, text, size}) {
         {(image)
           ? <Image 
             source={{uri: image}} 
+            onError={(_) => setImage(null)}
             style={{width: "100%", height: "100%", borderRadius: size/2}} 
             resizeMode='cover' 
           />
