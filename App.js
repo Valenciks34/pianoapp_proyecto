@@ -20,6 +20,7 @@ import ForgotPasswordScreen from './src/screens/forgotPasswordScreen/ForgotPassw
 import HomeScreen  from './src/screens/homeScreen/HomeScreen';
 
 import LessonScreen from './src/screens/lessonScreen/LessonScreen';
+import LessonDetailScreen from './src/screens/lessonScreen/LessonDetailScreen';
 import PracticeScreen from './src/screens/practiceScreen/PracticeScreen';
 import { ProfileScreen, AccountScreen, ChangePasswordScreen, HelpScreen } from './src/screens/profileScreen/ProfileScreen';
 
@@ -237,6 +238,7 @@ const App = () => {
                 
                   <Stack.Screen name="Home" component={HomeScreen} />
                   <Stack.Screen name="Lessons" component={LessonScreen} />
+                  <Stack.Screen name="LessonDetail" component={LessonDetailScreen} />
                   <Stack.Screen name="Practice" component={PracticeScreen} />
                   <Stack.Screen name="Profile" component={ProfileScreen} />
                   <Stack.Screen name="Account" component={AccountScreen} />

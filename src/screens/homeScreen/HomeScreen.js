@@ -1,18 +1,27 @@
+import { useEffect } from "react";
 import { signOut } from "firebase/auth";
-import { View, ScrollView, Image, FlatList, TouchableOpacity } from "react-native";
-import { Appbar, Button, Text, Divider, Card, TouchableRipple } from "react-native-paper";
+import { View, Image, FlatList, TouchableOpacity } from "react-native";
+import { Appbar, Text, Divider, ActivityIndicator } from "react-native-paper";
 import { useDispatch } from "react-redux";
 import { StackActions } from "@react-navigation/native";
 
 import { auth } from "../../../firebaseConfig";
 import { setUser } from "../../store/slices/userSlice";
+import { StyleSheet } from "react-native";
+import { useGetCategories } from "./hooks/useGetCategories";
 // import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
 
-const lessonImage = require("../../../assets/images/lesson.png");
-const pianoImage = require("../../../assets/images/piano.png");
 
 export default function HomeScreen({ navigation }) {
+  const { isLoading, categories, getCategories } = useGetCategories();
+
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if(categories == null) {
+      getCategories();
+    }
+  }, []);
 
   const logout = () => {
     dispatch(setUser(null));
@@ -29,41 +38,44 @@ export default function HomeScreen({ navigation }) {
       </Appbar.Header>
       <Divider bold/>
 
-      <FlatList 
-        data={[1,2,3,4,5,6,7,8,9,10]}
-        keyExtractor={(_, index) => index.toString()}
-        numColumns={2}
-        contentContainerStyle={{padding: 20.0}}
-        ItemSeparatorComponent={() => <View style={{height: 20.0}} />}
-        columnWrapperStyle={{justifyContent: "space-between"}}
-        renderItem={({_}) => (
-          <TouchableOpacity activeOpacity={0.7}  onPress={() => navigation.push("Lessons")} style={{
-            width: "47.5%", 
-            aspectRatio: 1,
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.23,
-            shadowRadius: 2.62,
-            elevation: 4,
-            borderRadius: 20.0,
-            backgroundColor: "white",
-            // boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)",
-          }}>
-            <View style={{
-              width: "100%",
-              height: "100%",
-              justifyContent: 'center',
-              alignItems:'center',
-            }}  >
-            <Text variant="titleLarge" >Historia</Text>
-            <Image source={require('../../../assets/images/piano_3d.png')} />
+      {
+        isLoading
+          ? <View style={styles.center}>
+            <ActivityIndicator />
           </View>
-          </TouchableOpacity>
-        )}
-      />
+          : <FlatList 
+            data={categories}
+            keyExtractor={(_, index) => index.toString()}
+            numColumns={2}
+            contentContainerStyle={{padding: 20.0}}
+            ItemSeparatorComponent={() => <View style={{height: 20.0}} />}
+            columnWrapperStyle={{justifyContent: "space-between"}}
+            renderItem={({item}) => (
+              <TouchableOpacity 
+                activeOpacity={0.7} 
+                onPress={() => navigation.push("Lessons", { categoryId: item.id })} 
+                style={styles.card}
+              >
+                <View style={styles.cardContent}>
+                  <View style={{height: 44 * 1.4, justifyContent: 'center'}}>
+
+                    <Text variant="titleLarge" 
+                      numberOfLines={2}
+                      style={{textAlign: "center"}}
+                    // adjustsFontSizeToFit={true}
+                    >{item.name}</Text>
+                  </View>
+                  
+                  <View style={{height:10}} />
+                  <View style={{flexGrow:1, width:"100%"}}>
+                    <Image style={{flex: 1, resizeMode: "contain"}} source={{uri: item.image}} />
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+      }
+      
 
       {/* <ScrollView 
         contentContainerStyle={{paddingVertical: 40.0, backgroundColor:"#fff", alignItems: "center"}}
@@ -107,3 +119,35 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    width: "47.5%", 
+    aspectRatio: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+    borderRadius: 20.0,
+    padding: 12.0,
+    backgroundColor: "white",
+  },
+
+  cardContent: {
+    width: "100%",
+    height: "100%",
+    justifyContent: 'center',
+    alignItems:'center',
+  },
+
+  center: {
+    width: "100%",
+    height: "100%",
+    justifyContent: 'center',
+    alignItems:'center',
+  }
+});
