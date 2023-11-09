@@ -1,27 +1,42 @@
-import { useEffect } from "react";
 import { signOut } from "firebase/auth";
-import { View, Image, FlatList, TouchableOpacity } from "react-native";
-import { Appbar, Text, Divider, ActivityIndicator } from "react-native-paper";
-import { useDispatch } from "react-redux";
+import { View } from "react-native";
+import { Image } from 'expo-image';
+import { Appbar, Text, Divider, TouchableRipple } from "react-native-paper";
 import { StackActions } from "@react-navigation/native";
 
 import { auth } from "../../../firebaseConfig";
 import { setUser } from "../../store/slices/userSlice";
 import { StyleSheet } from "react-native";
-import { useGetCategories } from "./hooks/useGetCategories";
+import { useDispatch } from "react-redux";
 // import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
 
 
+const options = [
+  {
+    title: 'TEORIA',
+    path: require('../../../assets/images/manual.png'),
+    route: 'Lessons'
+  },
+  {
+    title: 'PLAY PIANO',
+    path: require('../../../assets/images/teclado.png'),
+    route: 'Practice'
+  },
+  {
+    title: 'PERFIL',
+    path: require('../../../assets/images/perfil.png'),
+    route: 'Profile'
+  },
+  {
+    title: 'AJUSTES',
+    path: require('../../../assets/images/ajustes.png'),
+    route: 'Settings'
+  }
+];
+
+
 export default function HomeScreen({ navigation }) {
-  const { isLoading, categories, getCategories } = useGetCategories();
-
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if(categories == null) {
-      getCategories();
-    }
-  }, []);
 
   const logout = () => {
     dispatch(setUser(null));
@@ -32,95 +47,103 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       <Appbar.Header>
-        <Appbar.Content title="Homescreen" />
+        <Appbar.Content title="Home Screen" />
         <Appbar.Action icon="account" onPress={() => navigation.navigate("Profile")} />
         <Appbar.Action icon="logout" onPress={logout} />
       </Appbar.Header>
       <Divider bold/>
 
-      {
-        isLoading
-          ? <View style={styles.center}>
-            <ActivityIndicator />
-          </View>
-          : <FlatList 
-            data={categories}
-            keyExtractor={(_, index) => index.toString()}
-            numColumns={2}
-            contentContainerStyle={{padding: 20.0}}
-            ItemSeparatorComponent={() => <View style={{height: 20.0}} />}
-            columnWrapperStyle={{justifyContent: "space-between"}}
-            renderItem={({item}) => (
-              <TouchableOpacity 
-                activeOpacity={0.7} 
-                onPress={() => navigation.push("Lessons", { categoryId: item.id })} 
-                style={styles.card}
+      <View style={{flex: 1, paddingHorizontal:30.0, paddingVertical: 40.0, justifyContent:"center"}}>
+        <View style={{flexGrow: 0.8}}>
+          {
+            options.map((item, index) => {
+              return <View 
+                key={index.toString()}
+                style={{
+                  flex: 1, 
+                  // overflow: "hidden",
+                  backgroundColor:"white",
+                  borderColor: "black",
+                  borderWidth:2,
+                  borderTopLeftRadius: index === 0 ? 20 : 0,
+                  borderBottomLeftRadius: index === options.length -1 ? 20.0 : 0.0,
+                  // transform: [{translateY: index !== 0 ? -(0 * index) : 0.0}]
+                }}
               >
-                <View style={styles.cardContent}>
-                  <View style={{height: 44 * 1.4, justifyContent: 'center'}}>
+                {
+                  index !== 0 && <View 
+                    style={{
+                      position: "absolute",
+                      width: "45%",
+                      height: "35%",
+                      backgroundColor: "#363332",
+                      top: "-17.5%",
+                      right: 0
+                    }}
+                  />
+                }
 
-                    <Text variant="titleLarge" 
-                      numberOfLines={2}
-                      style={{textAlign: "center"}}
-                    // adjustsFontSizeToFit={true}
-                    >{item.name}</Text>
-                  </View>
-                  
-                  <View style={{height:10}} />
-                  <View style={{flexGrow:1, width:"100%"}}>
-                    <Image style={{flex: 1, resizeMode: "contain"}} source={{uri: item.image}} />
-                  </View>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-      }
-      
+                <TouchableRipple 
+                  onPress={() => navigation.push(item.route)} 
+                  style={{flex:1, padding: 20.0, flexDirection: "row", alignItems: "center"}}
+                >
+                  <>
+                    <View style={{flex: 0.35, padding: 10.0}}>
+                      <Image
+                        source={item.path}
+                        style={{flex:1}}
+                        contentFit="contain"
+                      />
+                    </View>
 
-      {/* <ScrollView 
-        contentContainerStyle={{paddingVertical: 40.0, backgroundColor:"#fff", alignItems: "center"}}
-      >
-        <View>
-          <Card style = {{width:"80%", backgroundColor:"#f7f7f7"}} type="outlined">
-            <Card.Content>
-              <Text variant="headlineLarge" style={{textAlign:"center", marginBottom:10}}>Lecciones teoricas</Text>
-            </Card.Content>
-            <Card.Cover source ={lessonImage} resizeMode="center"/>
-            <Card.Content>
-              <Text variant="bodyMedium" style={{textAlign:"justify", marginTop:10}}>Si eres principiante conoce los conceptos basicos de este instrumento, aqui podras ver clases teoricas que te ayudaran a entender mejor la naturaleza del instrumento.</Text>
-            </Card.Content>
-            <Card.Actions style = {{padding:20}}>
-              <Button onPress={() => {}} >Cancel</Button>
-              <Button onPress={() => {}} >Ok</Button>
-            </Card.Actions>
-          </Card>
+                    <View style={{width:10.0}} />
+
+                    <View style={{flex: 0.75}}>
+                      <Text 
+                        variant="headlineLarge"
+                        style={{fontFamily: "wi500",  textDecorationLine: "underline"}}
+                      >{item.title}</Text>
+                    </View>
+                  </>
+                </TouchableRipple>
+              </View>
+            }) 
+          }
         </View>
 
-        <View style={{width: "85%", height: 30, justifyContent: "center"}}>
-          <Divider  />
-        </View>
-
-        <Card style = {{width:"80%", backgroundColor:"#f7f7f7"}} type="outlined">
-          <Card.Content>
-            <Text variant="headlineLarge" style={{textAlign:"center", marginBottom:10}}>Lecciones teoricas</Text>
-          </Card.Content>
-          <Card.Cover source ={pianoImage} resizeMode="center"/>
-          <Card.Content>
-            <Text variant="bodyMedium" style={{textAlign:"justify", marginTop:10}}>Si eres principiante conoce los conceptos basicos de este instrumento, aqui podras ver clases teoricas que te ayudaran a entender mejor la naturaleza del instrumento.</Text>
-          </Card.Content>
-          <Card.Actions style = {{padding:20}}>
-            <Button>Cancel</Button>
-            <Button >Ok</Button>
-          </Card.Actions> 
-        </Card>
-      
-      </ScrollView> */}
+      </View>
 
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex:1, 
+    backgroundColor:"white", 
+    borderRadius: 12, 
+    overflow: "hidden", 
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  shadow: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
   card: {
     width: "47.5%", 
     aspectRatio: 1,
