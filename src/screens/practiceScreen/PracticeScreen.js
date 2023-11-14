@@ -1,6 +1,7 @@
-import { View, StyleSheet, TouchableWithoutFeedback} from 'react-native';
-import { Text } from 'react-native-paper';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { View, StyleSheet} from 'react-native';
+import { Gesture } from 'react-native-gesture-handler';
+import PianoButton from './components/PianoButton';
+import Pentagram from './components/Pentagram';
 
 const notes = [
   {
@@ -11,14 +12,17 @@ const notes = [
   {
     note:"D",
     // src:require("../../../assets/piano-mp3/D4.mp3"),
+    tap: Gesture.Tap().onTouchesDown((e, s) => {
+      console.log("D");
+    }),
     bemol: {
       note:"Db",
       // src:require("../../../assets/piano-mp3/Db4.mp3")
-      tap: Gesture.Tap().onTouchesDown(() => console.log("Db"))
+      tap: Gesture.Tap().onTouchesDown((event, e) => {
+        console.log("Db");
+      })
     },
-    tap: Gesture.Tap().onTouchesDown(() => console.log("D"))
-  },
-  
+  }, 
   {
     note:"E",
     // src:require("../../../assets/piano-mp3/E4.mp3"),
@@ -66,81 +70,35 @@ const notes = [
   },
 ];
 
-const PracticeScreen = ({navigation}) => {
+const PracticeScreen = ({_}) => {
 
   return (
-    <View 
-      style = {{
-        flexGrow:1, 
-        justifyContent:'center', 
-        alignItems:'center', 
-        backgroundColor:"#199"
-      }}>
-      <View style={{flexGrow: 0.9, flexShrink: 1, paddingHorizontal:20, flexDirection: "row"}}>
+    <View style={styles.container}>
+      {/* Row */}
+      <View style={styles.row}>
+        
+        {/* Piano */}
         <View style={{flex:0.8}}>
           <View style={{flexGrow: 1}}>
             <View style={styles.caser}/>
 
             {
               notes.map((item, index) => {
-                return <GestureDetector 
-                  key={item.note} 
-                  gesture={item.tap}
-                >
-                  <View style={styles.note} >
-                    {
-                      item.bemol && <View style={styles.bemol}>
-                        <GestureDetector
-                          gesture={item.bemol.tap}
-                        >
-                          <View style={{flex:1, zIndex:999, backgroundColor: "red", justifyContent: "center", paddingLeft: 10.0}}>
-                            <View 
-                              style={{
-                                alignSelf: "flex-start",
-                                transform: [{rotate: '90deg'}],
-                              }}
-                            >
-                              <Text variant="titleMedium" style={{color: "white"}}  >
-                                {item.bemol.note}
-                              </Text>
-                            </View>
-                          </View>
-
-                        </GestureDetector>
-                      </View>
-                    }
-
-                    <View 
-                      style={{
-                        flex:1,
-                        paddingHorizontal: 20.0,
-                        justifyContent: "center"
-                      }}
-                    >
-                      <View 
-                        style={{
-                          alignSelf: "flex-start",
-                          transform: [{rotate: '90deg'}],
-                        }}
-                      >
-                        <Text variant="titleLarge"  >
-                          {item.note}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </GestureDetector>;
+                return <PianoButton 
+                  key={item.note}
+                  item={item} 
+                  index={index} 
+                />;
               })
             }
 
             <View style={styles.casel}/>
-
           </View>
         </View>
 
+        {/* Pentagram */}
         <View style={{flex: 0.2}}>
-          <Text>Hola</Text>
-
+          <Pentagram />
         </View>
 
       </View>
@@ -149,6 +107,13 @@ const PracticeScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexGrow:1, 
+    justifyContent:'center', 
+    alignItems:'center', 
+    backgroundColor:"#199"
+  },
+
   caser: {
     height: 50, 
     backgroundColor: "#fdcb50",
@@ -162,6 +127,13 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20.0,
     borderBottomRightRadius: 20.0
   },
+
+  row: {
+    flexGrow: 0.9, 
+    flexShrink: 1, 
+    paddingHorizontal:20, 
+    flexDirection: "row"
+  },  
 
   note: {
     flexGrow: 1,

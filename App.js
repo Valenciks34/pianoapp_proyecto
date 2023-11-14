@@ -26,6 +26,7 @@ import PracticeScreen from './src/screens/practiceScreen/PracticeScreen';
 import { ProfileScreen, AccountScreen, ChangePasswordScreen, HelpScreen } from './src/screens/profileScreen/ProfileScreen';
 
 import userReducer from './src/store/slices/userSlice';
+import pianoReducer from './src/store/slices/pianoSlice';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator(); 
@@ -34,9 +35,9 @@ const navigationRef = createNavigationContainerRef();
 
 const queryClient = new QueryClient();
 
-const persistConfig = { key: 'user', storage: AsyncStorage };
+const persistConfig = { key: 'user', storage: AsyncStorage, whiteList: ['user'] };
 
-const rootReducer = combineReducers({user: userReducer});
+const rootReducer = combineReducers({user: userReducer, piano: pianoReducer});
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
