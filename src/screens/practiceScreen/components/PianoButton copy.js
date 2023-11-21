@@ -6,11 +6,12 @@ import { Text } from "react-native-paper";
 import { useDispatch } from "react-redux";
 
 import { addNote, removeNote } from "../../../store/slices/pianoSlice";
+import { cache } from "./ToneCache";
 
 
 const PianoButton = ({item}) => {
   const [tone, setTone] = useState(null);
-  const [toneb, setToneb] = useState(null);
+  const [toneb, setToneb] = useState(toneb);
 
   const dispatch = useDispatch();
 
@@ -46,6 +47,10 @@ const PianoButton = ({item}) => {
   }, []);
 
   useEffect(() => {
+    if(cache.has(item.path)) {
+      return;
+    }
+
     loadTones();
 
     return () => {
@@ -63,16 +68,16 @@ const PianoButton = ({item}) => {
 
     const [audio, audiob] = await Promise.all(tones);
 
-    setTone(audio.sound);
+    cache.set(item.path, audio.sound);
     
     if(audiob) {
-      setToneb(audiob.sound);
+      cache.set(`${item.path} bemol`, audiob.sound);
     }
   };
 
   return (
     <GestureDetector
-      gesture={Gesture.Tap().onTouchesDown(() => {
+      gesture={Gesture.Tap().onTouchesDown((e) => {
         debounceWhite(() => {
           console.log(`tone: ${item.note}`);
 
@@ -136,7 +141,7 @@ const styles = StyleSheet.create({
 
   absolute: {
     position: "absolute",
-    width: "50%",
+    width: "40%",
     height: "50%",
     top: "-25%",
     right: -2.5,

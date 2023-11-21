@@ -106,7 +106,7 @@ export default function HomeScreen({ navigation }) {
                     </View>
                   </>
                 </TouchableRipple>
-              </View>
+              </View>;
             }) 
           }
         </View>
