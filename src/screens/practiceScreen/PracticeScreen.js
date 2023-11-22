@@ -24,41 +24,23 @@ const PracticeScreen = ({_}) => {
           { size && 
             <>
               {/* Piano */}
-              <FlatList 
-                data={notes}
-                keyExtractor={(item) => item.note}
-                renderItem={({item}) => {
-                  return <View
-                    style={{height: size.height / 7}}
-                  >
-                    <PianoButton item={item} />
-                  </View>;
-                }}
-              />
-
-
-              {/* <ScrollView 
-                contentContainerStyle={{flexGrow: 1}}
-                // style={{flexGrow: 1}}
-                // pointerEvents=''
-              >
-                {
-                  notes.map((item, index) => {
+              <View style={{flex: flex}}>
+                <FlatList 
+                  data={notes}
+                  keyExtractor={(item) => item.note}
+                  renderItem={({item}) => {
                     return <View
                       style={{height: size.height / 7}}
-                      key={item.note}
                     >
-                      <PianoButton 
-                        item={item} 
-                        index={index} 
-                      />
+                      <PianoButton item={item} />
                     </View>;
-                  })
-                }
-              </ScrollView> */}
+                  }}
+                />
+              </View>
+              
     
               {/* Pentagram */}
-              <View style={{flex: 1 - flex, paddingHorizontal: 10.0, overflow: "visible"}}>
+              <View style={{flex: 1 - flex}}>
                 <Pentagram />
               </View>
             </>

@@ -18,6 +18,7 @@ const PianoButton = ({item}) => {
 
   let noteTimer;
   let bemolTimer;
+  let toneTimer;
 
   const debounceWhite = (callback, delay) => {
     if(pressed) return;
@@ -42,6 +43,7 @@ const PianoButton = ({item}) => {
     return () => {
       clearTimeout(noteTimer);
       clearTimeout(bemolTimer);
+      clearTimeout(toneTimer);
     };
   }, []);
 
@@ -70,6 +72,15 @@ const PianoButton = ({item}) => {
     }
   };
 
+  const clearTone = (tone) => {
+    clearTimeout(toneTimer);
+
+    toneTimer = setInterval(() => {
+      dispatch(removeNote(tone));
+      clearTimeout(toneTimer);
+    }, 1000);
+  };
+
   return (
     <GestureDetector
       gesture={Gesture.Tap().onTouchesDown(() => {
@@ -77,10 +88,11 @@ const PianoButton = ({item}) => {
           console.log(`tone: ${item.note}`);
 
           try {
-            tone?.replayAsync();
+            tone?.play();
 
             if(tone) {
-              dispatch(addNote(item.note));
+              dispatch(addNote(item.tone));
+              clearTone(item.tone);
             }
           } catch (error) {
             console.log(`error: ${error}`);

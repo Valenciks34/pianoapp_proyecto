@@ -1,13 +1,16 @@
 import { signOut } from "firebase/auth";
 import { View } from "react-native";
 import { Image } from 'expo-image';
-import { Appbar, Text, Divider, TouchableRipple } from "react-native-paper";
+import { Appbar, Text, Divider, TouchableRipple, Portal, Modal } from "react-native-paper";
 import { StackActions } from "@react-navigation/native";
+import { AirbnbRating } from 'react-native-ratings';
 
 import { auth } from "../../../firebaseConfig";
 import { setUser } from "../../store/slices/userSlice";
 import { StyleSheet } from "react-native";
 import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useState } from "react";
 // import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
 
 
@@ -38,14 +41,51 @@ const options = [
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
 
+  const [showModal, setShowModal] = useState();
+
   const logout = () => {
     dispatch(setUser(null));
     signOut(auth);
     navigation.dispatch(StackActions.replace("Login"));
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      setShowModal(true);
+    }, 3000);
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
+      <Portal>
+        <Modal 
+          visible={showModal} 
+          onDismiss={() => setShowModal(false)} 
+          contentContainerStyle = {{
+            backgroundColor: "#fff",
+            alignSelf: "center",
+            padding: 30,
+            borderRadius: 12.0
+          }}
+        >
+          <View>
+            <Text variant="titleLarge" style={{textAlign: "center"}}>
+              Calificanos
+            </Text>
+
+            <AirbnbRating
+              count={5}
+              reviews={["Terrible", "Bad", "Meh", "OK", "Good"]}
+              defaultRating={5}
+              size={20}
+              onFinishRating={(rating) => {
+                console.log(rating);
+              }}
+            />
+          </View>
+        </Modal>
+      </Portal>
+
       <Appbar.Header>
         <Appbar.Content title="Home Screen" />
         <Appbar.Action icon="account" onPress={() => navigation.navigate("Profile")} />

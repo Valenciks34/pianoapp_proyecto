@@ -2,7 +2,8 @@ export const notes = [
   //^ OCTAVA 1
   {
     note:"C1",
-    path: require('../../assets/tones/C1.mp3')
+    path: require('../../assets/tones/C1.mp3'),
+    tone: "DO"
   },
   {
     note:"D1",
@@ -11,6 +12,7 @@ export const notes = [
       note:"",
       path: require('../../assets/tones/Db1.mp3'),
     },
+    tone: "RE"
   }, 
   {
     note:"E1",
@@ -19,10 +21,12 @@ export const notes = [
       note:"",
       path: require('../../assets/tones/Eb1.mp3'),
     },
+    tone: "MI"
   },
   {
     note:"F1",
     path: require('../../assets/tones/F1.mp3'),
+    tone: "FA"
   },
   {
     note:"G1",
@@ -31,6 +35,7 @@ export const notes = [
       note:"",
       path: require('../../assets/tones/Gb1.mp3'),
     },
+    tone: "SOL"
   },
   {
     note:"A1",
@@ -39,6 +44,7 @@ export const notes = [
       note:"",
       path: require('../../assets/tones/Ab1.mp3'),
     },
+    tone: "LA"
   },
   {
     note:"B1",
@@ -47,6 +53,7 @@ export const notes = [
       note:"",
       path: require('../../assets/tones/Bb1.mp3'),
     },
+    tone: "SI"
   },
 
   //^ OCTAVA 2
